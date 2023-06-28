@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>alexander plist maker tool</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <form enctype="multipart/form-data">
+    <input id="fileInput" type="file" name="file" accept="" required>
+    <button class="buttonn" type="button" onclick="uploadFile()">UPLOAD</button>
+  </form>
+
+  <div id="progressBar"></div>
+
+  <script>
+    // Generate a unique identifier
+    function uniqid() {
+      var now = Date.now();
+      var random = Math.floor(Math.random() * 1000);
+      return now.toString(36) + random.toString(36);
+    }
+
+    function uploadFile() {
+      var fileInput = document.getElementById("fileInput");
+      var file = fileInput.files[0];
+
+      var xhr = new XMLHttpRequest();
+      var url = "https://s3.us.archive.org/" + uniqid() + "_20230502_202305%2F" + encodeURIComponent(file.name);
+      xhr.open("PUT", url, true);
+
+      var formData = new FormData();
+      formData.append("file", file);
+
+      xhr.setRequestHeader("Host", "s3.us.archive.org");
+      xhr.setRequestHeader("X-File-Size", file.size);
+      xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+      xhr.setRequestHeader("Cache-Control", "no-cache");
+      xhr.setRequestHeader("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 15_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6,2 Mobile/15E148 Safari/604.1");
+      xhr.setRequestHeader("x-amz-auto-make-bucket", "1");
+      xhr.setRequestHeader("x-archive-meta01-description", "uri(Nothing)");
+      xhr.setRequestHeader("x-archive-interactive-priority", "1");
+      xhr.setRequestHeader("Referer", "https://archive.org/upload/");
+      xhr.setRequestHeader("x-archive-meta01-collection", "uri(opensource_media)");
+      xhr.setRequestHeader("Origin", "https://archive.org");
+      xhr.setRequestHeader("X-File-Name", file.name);
+      xhr.setRequestHeader("Content-Length", file.size);
+      xhr.setRequestHeader("x-archive-size-hint", file.size);
+      xhr.setRequestHeader("x-archive-meta01-subject", "uri(Store)");
+      xhr.setRequestHeader("Connection", "keep-alive");
+      xhr.setRequestHeader("Authorization", "LOW ZqnLRyAXoUmCeNVX:spS4xhfHYkglRgOG");
+      xhr.setRequestHeader("Accept-Language", "en-GB,en-US;q=0.9,en;q=0.8");
+      xhr.setRequestHeader("x-archive-meta-mediatype", "uri(data)");
+      xhr.setRequestHeader("x-archive-meta01-title", encodeURIComponent(file.name));
+      xhr.setRequestHeader("x-amz-acl", "bucket-owner-full-control");
+      xhr.setRequestHeader("Accept", "*/*");
+      xhr.setRequestHeader("Accept-Encoding", "gzip, deflate, br");
+      xhr.upload.onprogress = function (e) {
+        var percentComplete = (e.loaded / e.total) * 100;
+        document.getElementById("progressBar").innerText = "Upload progress: " + percentComplete.toFixed(2) + "%";
+      }
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            // Request successful
+            console.log("API request successful");
+            alert(url);
+          } else {
+            // Request failed
+
+        console.log("API request failed");
+        console.log("Status: " + xhr.status);
+      }
+    }
+  };
+
+  xhr.send(formData);
+}
+
+
+</script>
+</body>
+</html>
